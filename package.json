@@ -4,8 +4,8 @@
   "description": "Telegram Bot for random verse from Srila Prabhupada books",
   "main": "index.js",
   "scripts": {
-    "start": "ts-node ./api/bot.ts",
-    "dev": "ts-node-dev ./api/bot.ts",
+    "start": "ts-node ./src/dev-bot.ts",
+    "dev": "ts-node-dev ./src/dev-bot.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Slava Beloglazov",
@@ -16,6 +16,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "grammy": "^1.23.0"
+    "grammy": "^1.23.0",
+    "random-js": "^2.1.0"
   }
 }

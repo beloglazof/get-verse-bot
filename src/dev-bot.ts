@@ -1,13 +1,10 @@
 import { Bot, Context, Keyboard } from 'grammy';
-import { LIBRARY_BASE_URL, BOOK_TITLE, Book } from './constants';
 import { getRandomVerse } from './get-random-verse';
+import { BOOK_TITLE, Book, LIBRARY_BASE_URL } from './constants';
 
 const path = require('node:path');
 
-const { BOT_TOKEN: token = '' } = process.env;
-
-// Set your token in the vercel environment variable
-export const bot = new Bot(token);
+const bot = new Bot('7019912482:AAGTT52ie45qZjA3tyaWHAPDwnl5EG5Tv2c');
 
 const buildVerseMessage = (verse: string[]): string => {
   const versePath = path.join(...verse);
@@ -51,3 +48,6 @@ bot.on('message', (ctx) => {
 bot.hears(keyboardMessageText, (ctx) => {
   sendVerse(ctx);
 });
+
+// Start the bot.
+bot.start();
