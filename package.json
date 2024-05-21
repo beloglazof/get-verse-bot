@@ -11,6 +11,7 @@
   "author": "Slava Beloglazov",
   "license": "ISC",
   "devDependencies": {
+    "prettier": "3.2.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5"
