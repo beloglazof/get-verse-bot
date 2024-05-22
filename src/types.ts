@@ -3,12 +3,19 @@ export enum Env {
   Prod = 'prod',
 }
 
-export type BGVerseType = [Book, string, string];
-export type SBVerseType = [Book, string, string, string];
-export type VerseType = BGVerseType | SBVerseType;
+export interface VerseType {
+  link: string;
+  title: string;
+}
 
 export enum Book {
   BG = 'bg',
   SB = 'sb',
-  // CC = 'cc',
+  CC = 'cc',
+}
+
+export enum CcLila {
+  Adi = 'adi',
+  Madhya = 'madhya',
+  Antya = 'antya',
 }

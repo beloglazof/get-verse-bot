@@ -1,86 +1,65 @@
-import { Bot, Context, Keyboard } from 'grammy';
-import {
-  getRandomBGVerse,
-  getRandomSBVerse,
-  getRandomVerse,
-} from './get-random-verse';
-import { LIBRARY_BASE_URL, BOOK_TITLE } from './constants';
-import { Book, Env, VerseType } from './types';
-
-const path = require('node:path');
+import { Bot, Context, Keyboard, Middleware } from 'grammy';
+import { autoRetry } from '@grammyjs/auto-retry';
+import { getRandomVerse } from './get-random-verse';
+import { Book, Env } from './types';
 
 const { BOT_TOKEN: token = '', ENV: env } = process.env;
 
 export const bot = new Bot(token);
 
-const buildVerseMessage = (verse: VerseType): string => {
-  const versePath = path.join(...verse);
-  const verseLink = new URL(versePath, LIBRARY_BASE_URL).toString();
-
-  const [book, ...verseData] = verse;
-  const bookTitle = BOOK_TITLE[book as Book];
-  const verseNumber = verseData.join('.');
-  const message = `Вот, что я нашел для Вас
-
-[${bookTitle} ${verseNumber}](${verseLink})`;
-
-  return message;
-};
+bot.api.config.use(autoRetry());
 
 const randomVerseMessageText = 'Любой случайный стих, пожалуйста 🔮';
-const randomBGVerseMessageText = 'Что-нибудь из Бхагавад-гиты, пожалуйста 🪈';
-const randomSBVerseMessageText =
-  'Что-нибудь из Шримад-Бхагаватам, пожалуйста 🦜';
+const randomBGVerseMessageText = 'Стих из Бхагавад-гиты, пожалуйста 🪈';
+const randomSBVerseMessageText = 'Стих из Шримад-Бхагаватам, пожалуйста 🦜';
+const randomCCVerseMessageText =
+  'Стих из Шри Чайтанья-чаритамриты, пожалуйста 🌕';
 const keyboard = new Keyboard()
   .text(randomVerseMessageText)
   .row()
   .text(randomBGVerseMessageText)
   .row()
   .text(randomSBVerseMessageText)
+  .row()
+  .text(randomCCVerseMessageText)
   .persistent();
 
-const sendVerse = (ctx: Context, verse: VerseType) => {
-  const verseMessage = buildVerseMessage(verse);
+const handleGetVerse: (from?: Book) => Middleware<Context> =
+  (from) => (ctx) => {
+    try {
+      const verse = getRandomVerse(from);
+      const message = `Вот, что я нашел для Вас:
+[${verse.title}](${verse.link})`;
 
-  ctx.reply(verseMessage, {
-    reply_markup: keyboard,
-    parse_mode: 'Markdown',
-  });
-};
+      ctx.reply(message, {
+        reply_markup: keyboard,
+        parse_mode: 'Markdown',
+      });
+    } catch (e) {
+      console.error(e);
+      ctx.reply('Что-то пошло не так. /help');
+    }
+  };
 
-bot.command('start', (ctx) =>
+bot.command('start', (ctx) => {
   ctx.reply(
-    `Привет, ${ctx.from}!
-    Я могу найти случайный стих из Бхагавад-гиты, Шримад-Бхагаватам и Чайтанья-чаритамриты`,
+    `Привет! Чтобы получить случайный стих, нажмите на одну из кнопок`,
     {
       reply_markup: keyboard,
     },
-  ),
-);
+  );
+});
 
-bot.command('update', (ctx) => {
-  ctx.reply('🌚', {
+bot.command('help', (ctx) => {
+  ctx.reply('Нажмите на одну из кнопок, чтобы получить случайный стих', {
     reply_markup: keyboard,
   });
 });
 
-bot.hears(randomVerseMessageText, (ctx) => {
-  const verse = getRandomVerse();
-
-  sendVerse(ctx, verse);
-});
-
-bot.hears(randomBGVerseMessageText, (ctx) => {
-  const verse = getRandomBGVerse();
-
-  sendVerse(ctx, verse);
-});
-
-bot.hears(randomSBVerseMessageText, (ctx) => {
-  const verse = getRandomSBVerse();
-
-  sendVerse(ctx, verse);
-});
+bot.hears(randomVerseMessageText, handleGetVerse());
+bot.hears(randomBGVerseMessageText, handleGetVerse(Book.BG));
+bot.hears(randomSBVerseMessageText, handleGetVerse(Book.SB));
+bot.hears(randomCCVerseMessageText, handleGetVerse(Book.CC));
 
 if (env === Env.Dev) {
   bot.start();
