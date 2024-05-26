@@ -1,6 +1,7 @@
 export enum Env {
   Dev = 'dev',
   Prod = 'prod',
+  Local = 'local',
 }
 
 export interface VerseType {

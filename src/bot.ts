@@ -1,6 +1,5 @@
 import { Bot, Context, Keyboard, Middleware } from 'grammy';
 import { autoRetry } from '@grammyjs/auto-retry';
-import axios from 'axios';
 import jsdom from 'jsdom';
 //@ts-ignore
 import trunc from 'trunc-text';
@@ -34,7 +33,14 @@ const getVerseData = async (
   verseLink: string,
 ): Promise<Omit<VerseType, 'link' | 'title'>> => {
   try {
-    const { data } = await axios.get(verseLink);
+    const data = await fetch(new Request(verseLink)).then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      return response.text();
+    });
+
     const { document } = new JSDOM(data).window;
     const translation =
       document.body.querySelector('.r-translation')?.textContent;
@@ -47,6 +53,7 @@ const getVerseData = async (
 
     return { translation, firstPuportParagraph, needReadMore };
   } catch (e) {
+    console.error(e);
     return {};
   }
 };
@@ -132,6 +139,6 @@ bot.hears(randomBGVerseMessageText, handleGetVerse(Book.BG));
 bot.hears(randomSBVerseMessageText, handleGetVerse(Book.SB));
 bot.hears(randomCCVerseMessageText, handleGetVerse(Book.CC));
 
-if (env === Env.Dev) {
+if (env === Env.Local) {
   bot.start();
 }
