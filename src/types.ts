@@ -6,6 +6,9 @@ export enum Env {
 export interface VerseType {
   link: string;
   title: string;
+  translation?: string | null;
+  firstPuportParagraph?: string | null;
+  needReadMore?: boolean;
 }
 
 export enum Book {

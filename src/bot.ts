@@ -1,10 +1,16 @@
 import { Bot, Context, Keyboard, Middleware } from 'grammy';
 import { autoRetry } from '@grammyjs/auto-retry';
+import axios from 'axios';
+import jsdom from 'jsdom';
+//@ts-ignore
+import trunc from 'trunc-text';
+
 import { getRandomVerse } from './get-random-verse';
-import { Book, Env } from './types';
+import { Book, Env, VerseType } from './types';
 
 const { BOT_TOKEN: token = '', ENV: env } = process.env;
 
+const { JSDOM } = jsdom;
 export const bot = new Bot(token);
 
 bot.api.config.use(autoRetry());
@@ -24,12 +30,72 @@ const keyboard = new Keyboard()
   .text(randomCCVerseMessageText)
   .persistent();
 
+const getVerseData = async (
+  verseLink: string,
+): Promise<Omit<VerseType, 'link' | 'title'>> => {
+  try {
+    const { data } = await axios.get(verseLink);
+    const { document } = new JSDOM(data).window;
+    const translation =
+      document.body.querySelector('.r-translation')?.textContent;
+
+    const firstPuportParagraph =
+      document.body.querySelector('.r-paragraph')?.textContent;
+    const needReadMore =
+      (document.body.querySelector('.wrapper-puport')?.childElementCount || 0) >
+      2;
+
+    return { translation, firstPuportParagraph, needReadMore };
+  } catch (e) {
+    return {};
+  }
+};
+
+const buildMessage = ({
+  link,
+  title,
+  translation,
+  firstPuportParagraph,
+  needReadMore,
+}: VerseType) => {
+  const baseMessage = `Вот, что я нашел для Вас:
+
+[${title}](${link})`;
+
+  if (!translation) {
+    return baseMessage;
+  }
+
+  let message = `${baseMessage}
+    
+*${translation}*`;
+
+  if (!firstPuportParagraph) {
+    return message;
+  }
+
+  if (firstPuportParagraph.length <= 600) {
+    const readMoreLink = `[Читать дальше](${link})`;
+    message = `${message}
+
+*Комментарий:* ${firstPuportParagraph} ${needReadMore ? readMoreLink : ''}`;
+  } else {
+    const puportExcerpt = trunc(firstPuportParagraph, 300);
+
+    message = `${message}
+
+*Комментарий:* ${puportExcerpt} [Читать дальше](${link})`;
+  }
+
+  return message;
+};
+
 const handleGetVerse: (from?: Book) => Middleware<Context> =
-  (from) => (ctx) => {
+  (from) => async (ctx) => {
     try {
       const verse = getRandomVerse(from);
-      const message = `Вот, что я нашел для Вас:
-[${verse.title}](${verse.link})`;
+      const verseData = await getVerseData(verse.link);
+      const message = buildMessage({ ...verse, ...verseData });
 
       ctx.reply(message, {
         reply_markup: keyboard,
@@ -51,9 +117,14 @@ bot.command('start', (ctx) => {
 });
 
 bot.command('help', (ctx) => {
-  ctx.reply('Нажмите на одну из кнопок, чтобы получить случайный стих', {
-    reply_markup: keyboard,
-  });
+  ctx.reply(
+    `Нажмите на одну из кнопок, чтобы получить случайный стих.
+  
+Если бот ведет себя странно, напишите мне - @Beloglazof`,
+    {
+      reply_markup: keyboard,
+    },
+  );
 });
 
 bot.hears(randomVerseMessageText, handleGetVerse());
