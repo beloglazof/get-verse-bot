@@ -33,14 +33,13 @@ const getVerseData = async (
   verseLink: string,
 ): Promise<Omit<VerseType, 'link' | 'title'>> => {
   try {
-    const data = await fetch(new Request(verseLink)).then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+    const response = await fetch(new Request(verseLink));
 
-      return response.text();
-    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
 
+    const data = await response.text();
     const { document } = new JSDOM(data).window;
     const translation =
       document.body.querySelector('.r-translation')?.textContent;
