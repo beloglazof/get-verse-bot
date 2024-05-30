@@ -1,4 +1,9 @@
 {
   "outputDirectory": ".",
-  "buildCommand": "npx ts-node scripts/build.ts"
+  "buildCommand": "npx ts-node scripts/build.ts",
+  "functions": {
+    "api/webhook.ts": {
+      "maxDuration": 60
+    }
+  }
 }
