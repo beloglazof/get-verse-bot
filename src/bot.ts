@@ -26,8 +26,7 @@ const keyboard = new Keyboard()
   .row()
   .text(randomSBVerseMessageText)
   .row()
-  .text(randomCCVerseMessageText)
-  .persistent();
+  .text(randomCCVerseMessageText);
 
 const getVerseData = async (
   verseLink: string,
