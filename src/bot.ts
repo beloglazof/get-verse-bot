@@ -1,16 +1,21 @@
-import { Bot, Context, Keyboard, Middleware } from 'grammy';
+import { Bot, BotConfig, Context, Keyboard, Middleware } from 'grammy';
 import { autoRetry } from '@grammyjs/auto-retry';
 import jsdom from 'jsdom';
 //@ts-ignore
 import trunc from 'trunc-text';
 
 import { getRandomVerse } from './get-random-verse';
-import { Book, Env, VerseType } from './types';
+import { ApiEnv, Book, Env, VerseType } from './types';
 
 const { BOT_TOKEN: token = '', ENV: env } = process.env;
 
 const { JSDOM } = jsdom;
-export const bot = new Bot(token);
+
+const botConfig: BotConfig<Context> = {
+  client: { environment: env === Env.Prod ? ApiEnv.Prod : ApiEnv.Test },
+};
+
+export const bot = new Bot(token, botConfig);
 
 bot.api.config.use(autoRetry());
 
@@ -137,6 +142,6 @@ bot.hears(randomBGVerseMessageText, handleGetVerse(Book.BG));
 bot.hears(randomSBVerseMessageText, handleGetVerse(Book.SB));
 bot.hears(randomCCVerseMessageText, handleGetVerse(Book.CC));
 
-if (env === Env.Local) {
+if (env === Env.Dev) {
   bot.start();
 }

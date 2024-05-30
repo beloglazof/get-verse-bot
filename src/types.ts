@@ -1,7 +1,12 @@
 export enum Env {
   Dev = 'dev',
   Prod = 'prod',
-  Local = 'local',
+  Preview = 'preview',
+}
+
+export enum ApiEnv {
+  Prod = 'prod',
+  Test = 'test',
 }
 
 export interface VerseType {
