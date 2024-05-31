@@ -8,12 +8,12 @@ import {
   CC_LILA_LIST,
   CC_LILA_TITLE,
   CC_VERSES_BY_LILA_AND_CHAPTER,
-  LIBRARY_BASE_URL,
   SB_CANTOS_COUNT,
   SB_CHAPTER_COUNT_BY_CANTO,
   SB_VERSES_BY_CANTO_AND_CHAPTER,
-} from './constants';
+} from './book-constants';
 import { Book, VerseType } from './types';
+import { LIBRARY_BASE_URL } from './constants';
 
 const path = require('node:path');
 const random = new Random();
