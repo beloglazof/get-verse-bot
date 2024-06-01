@@ -2,14 +2,8 @@
   "outputDirectory": ".",
   "buildCommand": "npx ts-node scripts/build.ts",
   "functions": {
-    "api/webhook.ts": {
+    "api/**/*": {
       "maxDuration": 60
     }
-  },
-  "crons": [
-    {
-      "path": "/api/send-daily",
-      "schedule": "0 9 * * *"
-    }
-  ]
+  }
 }
