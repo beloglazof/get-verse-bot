@@ -1,4 +1,3 @@
-import { waitUntil } from '@vercel/functions';
 import { kv } from '@vercel/kv';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
@@ -27,13 +26,11 @@ export default async function handler(
       const verse = getRandomVerse();
       const message = buildDailyMessage(verse);
 
-      waitUntil(
-        bot.api.raw.sendMessage({
-          chat_id: Number(chatId),
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      );
+      bot.api.raw.sendMessage({
+        chat_id: Number(chatId),
+        text: message,
+        parse_mode: 'Markdown',
+      });
     });
 
     return response.json({ ok: true });
