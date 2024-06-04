@@ -4,8 +4,7 @@
   "description": "Telegram Bot for random verse from Srila Prabhupada books",
   "main": "index.js",
   "scripts": {
-    "start": "dotenvx run -f .env.local -- node ./src/bot.ts",
-    "build": "tsc && node scripts/build.js",
+    "start": "dotenvx run -f .env.local -- ts-node ./src/bot.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Slava Beloglazov",

@@ -1,5 +1,6 @@
 {
-  "outputDirectory": "build",
+  "outputDirectory": ".",
+  "buildCommand": "npx ts-node scripts/build.ts",
   "functions": {
     "api/**/*": {
       "maxDuration": 60
