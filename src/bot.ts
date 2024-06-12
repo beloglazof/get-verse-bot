@@ -53,16 +53,16 @@ bot.command('help', (ctx) => {
   );
 });
 
-bot.command('start_daily', async (ctx) => {
+bot.command('startdaily', async (ctx) => {
   try {
     await kv.hset(dailyVerseKey, { [String(ctx.chatId)]: '' });
-    ctx.reply('Я буду присылать Вам стих каждый день в 12:00 по МСК');
+    ctx.reply('Я буду присылать Вам стих каждый день в 11:00 по МСК');
   } catch (error) {
     console.error(error);
   }
 });
 
-bot.command('cancel_daily', async (ctx) => {
+bot.command('stopdaily', async (ctx) => {
   try {
     await kv.hdel(dailyVerseKey, String(ctx.chatId));
     ctx.reply('Больше никаких ежедневных стихов');
