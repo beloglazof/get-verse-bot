@@ -1,6 +1,7 @@
 import { Bot, BotConfig, Context, Middleware } from 'grammy';
 import { autoRetry } from '@grammyjs/auto-retry';
 import { kv } from '@vercel/kv';
+import { waitUntil } from '@vercel/functions';
 
 import { ApiEnv, Book, Env } from './types';
 import { DAILY_VERSE_KEY, DAILY_VERSE_TEST_KEY } from './constants';
@@ -53,18 +54,18 @@ bot.command('help', (ctx) => {
   );
 });
 
-bot.command('startdaily', async (ctx) => {
+bot.command('startdaily', (ctx) => {
   try {
-    await kv.hset(dailyVerseKey, { [String(ctx.chatId)]: '' });
+    waitUntil(kv.hset(dailyVerseKey, { [String(ctx.chatId)]: '' }));
     ctx.reply('Я буду присылать Вам стих каждый день в 11:00 по МСК');
   } catch (error) {
     console.error(error);
   }
 });
 
-bot.command('stopdaily', async (ctx) => {
+bot.command('stopdaily', (ctx) => {
   try {
-    await kv.hdel(dailyVerseKey, String(ctx.chatId));
+    waitUntil(kv.hdel(dailyVerseKey, String(ctx.chatId)));
     ctx.reply('Больше никаких ежедневных стихов');
   } catch (error) {
     console.error(error);

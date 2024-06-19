@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv';
+import { waitUntil } from '@vercel/functions';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { bot } from '../src/bot';
@@ -15,22 +16,30 @@ const buildDailyMessage = ({ link, title }: VerseType) => {
   return message;
 };
 
+export const config = {
+  supportsResponseStreaming: true,
+};
+
 export default async function handler(
   request: VercelRequest,
   response: VercelResponse,
 ) {
   try {
+    if (request.query.type === 'warm') {
+      return response.json({ ok: true, type: 'warm' });
+    }
+
     const chatIdList = await kv.hkeys(dailyVerseKey);
 
     chatIdList.forEach((chatId) => {
       const verse = getRandomVerse();
       const message = buildDailyMessage(verse);
 
-      bot.api.raw.sendMessage({
-        chat_id: Number(chatId),
-        text: message,
-        parse_mode: 'Markdown',
-      });
+      waitUntil(
+        bot.api.sendMessage(Number(chatId), message, {
+          parse_mode: 'Markdown',
+        }),
+      );
     });
 
     return response.json({ ok: true });
