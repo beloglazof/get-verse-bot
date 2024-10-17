@@ -9,6 +9,15 @@ export enum ApiEnv {
   Test = 'test',
 }
 
+export enum Command {
+  Start = 'start',
+  Help = 'help',
+  StartDaily = 'startdaily',
+  StopDaily = 'stopdaily',
+  StartSandwich = 'startsandwich',
+  StopSandwich = 'stopsandwich',
+}
+
 export interface VerseType {
   link: string;
   title: string;
