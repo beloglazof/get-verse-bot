@@ -18,7 +18,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "@dotenvx/dotenvx": "^0.43.1",
+    "@dotenvx/dotenvx": "^1.20.0",
     "@grammyjs/auto-retry": "^2.0.1",
     "@vercel/functions": "^1.0.2",
     "@vercel/kv": "^2.0.0",

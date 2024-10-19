@@ -80,12 +80,15 @@ bot.command(Command.StopDaily, (ctx) => {
 
 bot.command(Command.StartSandwich, (ctx) => {
   try {
-    waitUntil(kv.sadd(sandwichKey, ctx.chatId));
+    const initialData = JSON.stringify({
+      [Book.SB]: 0,
+      [Book.BG]: 0,
+      [Book.CC]: 0,
+    });
+
     waitUntil(
-      kv.hset(`${sandwichKey}:${ctx.chatId}`, {
-        [Book.SB]: '0',
-        [Book.BG]: '0',
-        [Book.CC]: '0',
+      kv.hset(`${sandwichKey}`, {
+        [ctx.chatId]: initialData,
       }),
     );
     ctx.reply(
@@ -98,7 +101,7 @@ bot.command(Command.StartSandwich, (ctx) => {
 
 bot.command(Command.StopSandwich, (ctx) => {
   try {
-    waitUntil(kv.srem(sandwichKey, String(ctx.chatId)));
+    waitUntil(kv.hdel(sandwichKey, String(ctx.chatId)));
     ctx.reply('Хорошо! Больше не будет ежедневного сэндвича');
   } catch (error) {
     console.error(error);
