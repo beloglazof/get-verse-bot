@@ -1,10 +1,18 @@
-import { BG_VERSES, BOOK_TITLE } from './book-constants';
-import { Book, VerseType } from './types';
+import {
+  BOOK_TITLE,
+  CC_LILA_TITLE,
+  BG_VERSES,
+  CC_VERSES,
+  SB_VERSES,
+} from './book-constants';
+import { Book, CcLila, VerseType } from './types';
 import { LIBRARY_BASE_URL } from './constants';
 
 const path = require('node:path');
 
-const getOrderedBGVerse = (verseInd: number): VerseType => {
+type GetOrderedVerse = (verseInd: number) => VerseType;
+
+const getOrderedBGVerse: GetOrderedVerse = (verseInd) => {
   const [chapter, verse] = BG_VERSES[verseInd].split('.');
 
   const link = new URL(
@@ -20,50 +28,43 @@ const getOrderedBGVerse = (verseInd: number): VerseType => {
   };
 };
 
-// const getOrderedSBVerse = (): VerseType => {
-//   const canto = random.integer(1, SB_CANTOS_COUNT).toString();
-//   const chapter = random
-//     .integer(1, SB_CHAPTER_COUNT_BY_CANTO[canto])
-//     .toString();
-//   const verse = random.pick(SB_VERSES_BY_CANTO_AND_CHAPTER[canto][chapter]);
+const getOrderedSBVerse: GetOrderedVerse = (verseInd) => {
+  const [canto, chapter, verse] = SB_VERSES[verseInd].split('.');
 
-//   const link = new URL(
-//     path.join(Book.SB, canto, chapter, verse),
-//     LIBRARY_BASE_URL,
-//   ).toString();
+  const link = new URL(
+    path.join(Book.SB, canto, chapter, verse),
+    LIBRARY_BASE_URL,
+  ).toString();
 
-//   const title = `${BOOK_TITLE[Book.SB]} ${canto}.${chapter}.${verse}`;
+  const title = `${BOOK_TITLE[Book.SB]} ${canto}.${chapter}.${verse}`;
 
-//   return {
-//     link,
-//     title,
-//   };
-// };
+  return {
+    link,
+    title,
+  };
+};
 
-// const getOrderedCCVerse = (): VerseType => {
-//   const lila = random.pick(CC_LILA_LIST);
-//   const chapter = random.integer(1, CC_CHAPTER_COUNT_BY_LILA[lila]).toString();
-//   const verse = random.pick(CC_VERSES_BY_LILA_AND_CHAPTER[lila][chapter]);
+const getOrderedCCVerse: GetOrderedVerse = (verseInd) => {
+  const [lila, chapter, verse] = CC_VERSES[verseInd].split('.');
+  const lilaTitle = CC_LILA_TITLE[lila as CcLila];
 
-//   const lilaTitle = CC_LILA_TITLE[lila];
+  const link = new URL(
+    path.join(Book.CC, lila, chapter, verse),
+    LIBRARY_BASE_URL,
+  ).toString();
 
-//   const link = new URL(
-//     path.join(Book.CC, lila, chapter, verse),
-//     LIBRARY_BASE_URL,
-//   ).toString();
+  const title = `${BOOK_TITLE[Book.CC]} ${lilaTitle} ${chapter}.${verse}`;
 
-//   const title = `${BOOK_TITLE[Book.CC]} ${lilaTitle} ${chapter}.${verse}`;
+  return {
+    link,
+    title,
+  };
+};
 
-//   return {
-//     link,
-//     title,
-//   };
-// };
-
-const getByBook: Record<Book, (verseInd: number) => VerseType> = {
+const getByBook: Record<Book, GetOrderedVerse> = {
   [Book.BG]: getOrderedBGVerse,
-  [Book.SB]: (verseInd) => ({ link: '', title: '' }),
-  [Book.CC]: (verseInd) => ({ link: '', title: '' }),
+  [Book.SB]: getOrderedSBVerse,
+  [Book.CC]: getOrderedCCVerse,
 };
 
 export const getOrderedVerse = (book: Book, verseInd: number) => {
