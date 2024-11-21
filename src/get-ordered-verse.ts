@@ -12,8 +12,12 @@ const path = require('node:path');
 
 type GetOrderedVerse = (verseInd: number) => VerseType;
 
+const getIndex = (initialIndex: number, arrayLength: number): number =>
+  initialIndex - arrayLength * Math.floor(initialIndex / arrayLength);
+
 const getOrderedBGVerse: GetOrderedVerse = (verseInd) => {
-  const [chapter, verse] = BG_VERSES[verseInd].split('.');
+  const index = getIndex(verseInd, BG_VERSES.length);
+  const [chapter, verse] = BG_VERSES[index].split('.');
 
   const link = new URL(
     path.join(Book.BG, chapter, verse),
@@ -29,7 +33,8 @@ const getOrderedBGVerse: GetOrderedVerse = (verseInd) => {
 };
 
 const getOrderedSBVerse: GetOrderedVerse = (verseInd) => {
-  const [canto, chapter, verse] = SB_VERSES[verseInd].split('.');
+  const index = getIndex(verseInd, SB_VERSES.length);
+  const [canto, chapter, verse] = SB_VERSES[index].split('.');
 
   const link = new URL(
     path.join(Book.SB, canto, chapter, verse),
@@ -45,7 +50,8 @@ const getOrderedSBVerse: GetOrderedVerse = (verseInd) => {
 };
 
 const getOrderedCCVerse: GetOrderedVerse = (verseInd) => {
-  const [lila, chapter, verse] = CC_VERSES[verseInd].split('.');
+  const index = getIndex(verseInd, CC_VERSES.length);
+  const [lila, chapter, verse] = CC_VERSES[index].split('.');
   const lilaTitle = CC_LILA_TITLE[lila as CcLila];
 
   const link = new URL(
