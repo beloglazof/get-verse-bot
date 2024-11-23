@@ -1,6 +1,7 @@
 import { kv } from '@vercel/kv';
 import { waitUntil } from '@vercel/functions';
 import { HttpStatusCode } from 'axios';
+import { GrammyError } from 'grammy';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { bot } from '../src/bot';
@@ -67,6 +68,13 @@ export default async function handler(
             });
           } catch (error) {
             console.error(error);
+
+            if (
+              error instanceof GrammyError &&
+              error.error_code === HttpStatusCode.Forbidden
+            ) {
+              await kv.hdel(`${sandwichKey}`, chatId);
+            }
 
             reject(error);
           }
