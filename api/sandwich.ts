@@ -60,17 +60,29 @@ export default async function handler(
       const message = getMessage(verse);
 
       waitUntil(
-        new Promise(async (resolve) => {
-          await bot.api.sendMessage(chatId, message, {
-            parse_mode: 'Markdown',
-          });
+        new Promise(async (resolve, reject) => {
+          try {
+            await bot.api.sendMessage(chatId, message, {
+              parse_mode: 'Markdown',
+            });
+          } catch (error) {
+            console.error(error);
 
-          const newSandwichData = JSON.stringify({
-            ...sandwichData,
-            [book]: verseInd + 1,
-          });
+            reject(error);
+          }
 
-          await kv.hset(`${sandwichKey}`, { [chatId]: newSandwichData });
+          try {
+            const newSandwichData = JSON.stringify({
+              ...sandwichData,
+              [book]: verseInd + 1,
+            });
+
+            await kv.hset(`${sandwichKey}`, { [chatId]: newSandwichData });
+          } catch (error) {
+            console.error(error);
+
+            reject(error);
+          }
 
           resolve(true);
         }),
