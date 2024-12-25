@@ -19,11 +19,11 @@ export enum Command {
 }
 
 export interface VerseType {
-  link: string;
+  from: Book;
+  libraryLink: string;
+  tgLink?: string;
   title: string;
   translation?: string | null;
-  firstPuportParagraph?: string | null;
-  needReadMore?: boolean;
 }
 
 export enum Book {

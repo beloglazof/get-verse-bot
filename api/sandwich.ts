@@ -6,19 +6,14 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { bot } from '../src/bot';
 import { SANDWICH_KEY, SANDWICH_TEST_KEY } from '../src/constants';
-import { Book, Env, VerseType } from '../src/types';
-import { getOrderedVerse } from '../src/get-ordered-verse';
+import { Book, Env } from '../src/types';
+import { buildVerseMessage } from '../src/build-verse-message';
+import { getVerse } from '../src/get-verse';
 
 const { ENV: env } = process.env;
 const sandwichKey = env === Env.Prod ? SANDWICH_KEY : SANDWICH_TEST_KEY;
 
 type SandwichStoredType = Record<string, Record<string, number>>;
-
-const getMessage = ({ link, title }: VerseType) => {
-  const message = `[${title}](${link})`;
-
-  return message;
-};
 
 export const config = {
   supportsResponseStreaming: true,
@@ -57,8 +52,8 @@ export default async function handler(
     chatIdList.forEach((chatId) => {
       const sandwichData = sandwichDataByChatId[chatId];
       const verseInd = sandwichData[book];
-      const verse = getOrderedVerse(book, verseInd);
-      const message = getMessage(verse);
+      const verse = getVerse(book, verseInd);
+      const message = buildVerseMessage(verse);
 
       waitUntil(
         new Promise(async (resolve, reject) => {

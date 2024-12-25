@@ -1,43 +1,44 @@
-//@ts-ignore
-import trunc from 'trunc-text';
-
 import { VerseType } from './types';
 
 export const buildVerseMessage = ({
-  link,
+  libraryLink,
   title,
   translation,
-  firstPuportParagraph,
-  needReadMore,
+  tgLink,
 }: VerseType) => {
-  const baseMessage = `Вот, что я нашел для Вас:
+  let message = `*${title}*`;
+  let links = `Читать полность: [vedabase.io](${libraryLink})`;
 
-[${title}](${link})`;
-
-  if (!translation) {
-    return baseMessage;
-  }
-
-  let message = `${baseMessage}
-    
-*${translation}*`;
-
-  if (!firstPuportParagraph) {
-    return message;
-  }
-
-  if (firstPuportParagraph.length <= 600) {
-    const readMoreLink = `[Читать дальше](${link})`;
+  if (translation) {
     message = `${message}
 
-*Комментарий:* ${firstPuportParagraph} ${needReadMore ? readMoreLink : ''}`;
-  } else {
-    const puportExcerpt = trunc(firstPuportParagraph, 300);
-
-    message = `${message}
-
-*Комментарий:* ${puportExcerpt} [Читать дальше](${link})`;
+${translation}`;
   }
+
+  if (tgLink) {
+    links = `${links}, [Telegram](${tgLink})`;
+  }
+
+  message = `${message}
+  
+${links}`;
+
+  return message;
+};
+
+export const buildRandomVerseMessage = (verse: VerseType) => {
+  const baseMessage = buildVerseMessage(verse);
+  const message = `Вот, что я нашел для Вас:
+
+${baseMessage}`;
+
+  return message;
+};
+
+export const buildDailyMessage = (verse: VerseType) => {
+  const baseMessage = buildVerseMessage(verse);
+
+  const message = `Стих дня: ${baseMessage}`;
 
   return message;
 };

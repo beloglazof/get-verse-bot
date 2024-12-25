@@ -1,13 +1,11 @@
-import { buildVerseMessage } from './build-verse-message';
-import { fetchVerseData } from './fetch-verse-data';
-import { getRandomVerse } from './get-random-verse';
+import { buildRandomVerseMessage } from './build-verse-message';
+import { getVerse } from './get-verse';
 import { Book } from './types';
 
-export const getVerseMessage = async (from?: Book) => {
+export const getRandomVerseMessage = (from?: Book) => {
   try {
-    const verse = getRandomVerse(from);
-    const verseData = await fetchVerseData(verse.link);
-    const message = buildVerseMessage({ ...verse, ...verseData });
+    const verse = getVerse(from);
+    const message = buildRandomVerseMessage(verse);
 
     return message;
   } catch (e) {

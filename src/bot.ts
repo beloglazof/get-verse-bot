@@ -17,7 +17,7 @@ import {
   randomSBVerseMessageText,
   randomVerseMessageText,
 } from './keyboard';
-import { getVerseMessage } from './get-verse-message';
+import { getRandomVerseMessage } from './get-verse-message';
 
 const { BOT_TOKEN: token = '', ENV: env } = process.env;
 const dailyVerseKey = env === Env.Prod ? DAILY_VERSE_KEY : DAILY_VERSE_TEST_KEY;
@@ -30,9 +30,9 @@ export const bot = new Bot(token, botConfig);
 
 bot.api.config.use(autoRetry());
 
-const handleGetVerse: (from?: Book) => Middleware<Context> =
+const handleGetRandomVerse: (from?: Book) => Middleware<Context> =
   (from) => async (ctx) => {
-    const message = await getVerseMessage(from);
+    const message = getRandomVerseMessage(from);
 
     ctx.reply(message, {
       reply_markup: keyboard,
@@ -108,7 +108,7 @@ bot.command(Command.StopSandwich, (ctx) => {
   }
 });
 
-bot.hears(randomVerseMessageText, handleGetVerse());
-bot.hears(randomBGVerseMessageText, handleGetVerse(Book.BG));
-bot.hears(randomSBVerseMessageText, handleGetVerse(Book.SB));
-bot.hears(randomCCVerseMessageText, handleGetVerse(Book.CC));
+bot.hears(randomVerseMessageText, handleGetRandomVerse());
+bot.hears(randomBGVerseMessageText, handleGetRandomVerse(Book.BG));
+bot.hears(randomSBVerseMessageText, handleGetRandomVerse(Book.SB));
+bot.hears(randomCCVerseMessageText, handleGetRandomVerse(Book.CC));

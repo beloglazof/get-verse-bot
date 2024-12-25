@@ -1,11 +1,20 @@
 import { Book, CcLila } from './types';
 
 export const BOOKS = [Book.SB, Book.BG, Book.CC];
-
 export const BOOK_TITLE = {
   [Book.BG]: 'Бхагавад-гита',
   [Book.SB]: 'Шримад-Бхагаватам',
   [Book.CC]: 'Шри Чайтанья-чаритамрита',
+};
+
+export const BG_VERSES_COUNT = 657;
+export const SB_VERSES_COUNT = 13007;
+export const CC_VERSES_COUNT = 11360;
+
+export const BOOK_VERSES_COUNT = {
+  [Book.BG]: BG_VERSES_COUNT,
+  [Book.SB]: SB_VERSES_COUNT,
+  [Book.CC]: CC_VERSES_COUNT,
 };
 
 export const BG_CHAPTERS_COUNT = 18;
