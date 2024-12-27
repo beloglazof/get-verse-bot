@@ -6,14 +6,11 @@ export const buildVerseMessage = ({
   translation,
   tgLink,
 }: VerseType) => {
-  let message = `*${title}*`;
-  let links = `Читать полность: [vedabase.io](${libraryLink})`;
-
-  if (translation) {
-    message = `${message}
-
+  let message = `*${title}*
+  
 ${translation}`;
-  }
+
+  let links = `Читать полность: [vedabase.io](${libraryLink})`;
 
   if (tgLink) {
     links = `${links}, [Telegram](${tgLink})`;

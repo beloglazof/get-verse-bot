@@ -23,7 +23,7 @@ export interface VerseType {
   libraryLink: string;
   tgLink?: string;
   title: string;
-  translation?: string | null;
+  translation: string;
 }
 
 export enum Book {

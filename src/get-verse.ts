@@ -9,6 +9,8 @@ import {
   BOOK_VERSES_COUNT,
   BG_VERSE_TRANSLATIONS,
   BOOKS,
+  SB_VERSE_TRANSLATIONS,
+  CC_VERSE_TRANSLATIONS,
 } from './book-constants';
 import { Book, CcLila, VerseType } from './types';
 import {
@@ -66,6 +68,7 @@ const getBGVerse: GetOrderedVerse = (verseInd) => {
 const getSBVerse: GetOrderedVerse = (verseInd) => {
   const [canto, chapter, verse] = SB_VERSES[verseInd].split('.');
   const title = `${BOOK_TITLE[Book.SB]} ${canto}.${chapter}.${verse}`;
+  const translation = SB_VERSE_TRANSLATIONS[verseInd];
 
   const link = new URL(
     path.join(Book.SB, canto, chapter, verse),
@@ -76,6 +79,7 @@ const getSBVerse: GetOrderedVerse = (verseInd) => {
     from: Book.SB,
     libraryLink: link,
     title,
+    translation,
   };
 };
 
@@ -83,6 +87,7 @@ const getCCVerse: GetOrderedVerse = (verseInd) => {
   const [lila, chapter, verse] = CC_VERSES[verseInd].split('.');
   const lilaTitle = CC_LILA_TITLE[lila as CcLila];
   const title = `${BOOK_TITLE[Book.CC]} ${lilaTitle} ${chapter}.${verse}`;
+  const translation = CC_VERSE_TRANSLATIONS[verseInd];
 
   const link = new URL(
     path.join(Book.CC, lila, chapter, verse),
@@ -93,6 +98,7 @@ const getCCVerse: GetOrderedVerse = (verseInd) => {
     from: Book.CC,
     libraryLink: link,
     title,
+    translation,
   };
 };
 
