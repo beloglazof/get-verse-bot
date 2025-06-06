@@ -1,4 +1,5 @@
-import { Keyboard } from 'grammy';
+import { InlineKeyboard, Keyboard } from 'grammy';
+import { Book } from './types';
 
 export const randomVerseMessageText = 'Любой случайный стих, пожалуйста 🔮';
 export const randomBGVerseMessageText = 'Стих из Бхагавад-гиты, пожалуйста 🪈';
@@ -7,7 +8,7 @@ export const randomSBVerseMessageText =
 export const randomCCVerseMessageText =
   'Стих из Шри Чайтанья-чаритамриты, пожалуйста 🌕';
 
-export const keyboard = new Keyboard()
+export const mainKeyboard = new Keyboard()
   .text(randomVerseMessageText)
   .row()
   .text(randomBGVerseMessageText)
@@ -15,3 +16,6 @@ export const keyboard = new Keyboard()
   .text(randomSBVerseMessageText)
   .row()
   .text(randomCCVerseMessageText);
+
+export const getBookmarkInlineKeyboard = (book: Book) =>
+  new InlineKeyboard().text('Закладка', `${book}-bookmark`);

@@ -18,14 +18,6 @@ export enum Command {
   StopSandwich = 'stopsandwich',
 }
 
-export interface VerseType {
-  from: Book;
-  libraryLink: string;
-  tgLink?: string;
-  title: string;
-  translation: string;
-}
-
 export enum Book {
   BG = 'bg',
   SB = 'sb',
@@ -36,4 +28,12 @@ export enum CcLila {
   Adi = 'adi',
   Madhya = 'madhya',
   Antya = 'antya',
+}
+
+export interface VerseType {
+  from: Book;
+  libraryLink: string;
+  tgLink?: string;
+  title: string;
+  translation: string;
 }

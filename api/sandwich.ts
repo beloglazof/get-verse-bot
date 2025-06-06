@@ -9,6 +9,7 @@ import { SANDWICH_KEY, SANDWICH_TEST_KEY } from '../src/constants';
 import { Book, Env } from '../src/types';
 import { buildVerseMessage } from '../src/build-verse-message';
 import { getVerse } from '../src/get-verse';
+import { getBookmarkInlineKeyboard } from '../src/keyboard';
 
 const { ENV: env } = process.env;
 const sandwichKey = env === Env.Prod ? SANDWICH_KEY : SANDWICH_TEST_KEY;
@@ -54,12 +55,14 @@ export default async function handler(
       const verseInd = sandwichData[book];
       const verse = getVerse(book, verseInd);
       const message = buildVerseMessage(verse);
+      const bookmarkKeyboard = getBookmarkInlineKeyboard(book);
 
       waitUntil(
         new Promise(async (resolve, reject) => {
           try {
             await bot.api.sendMessage(chatId, message, {
               parse_mode: 'Markdown',
+              reply_markup: bookmarkKeyboard,
             });
           } catch (error) {
             console.error(error);
