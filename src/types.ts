@@ -30,6 +30,13 @@ export enum CcLila {
   Antya = 'antya',
 }
 
+export enum ErrorCode {
+  Unknown = 'Unknown',
+  NoSandwichData = 'NoSandwichData', // bookmark errors
+  UnsupportedLibraryHostname = 'UnsupportedLibraryHostname',
+  InvalidBookmarkTarget = 'InvalidBookmarkTarget',
+}
+
 export interface VerseType {
   from: Book;
   libraryLink: string;
