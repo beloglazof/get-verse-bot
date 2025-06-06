@@ -1,23 +1,32 @@
-import { Bot, BotConfig, Context, Middleware } from 'grammy';
+import { Bot, BotConfig, Middleware, Context } from 'grammy';
 import { autoRetry } from '@grammyjs/auto-retry';
 import { kv } from '@vercel/kv';
-import { waitUntil } from '@vercel/functions';
 
-import { ApiEnv, Book, Command, Env } from './types';
+import { ApiEnv, Book, Command, Env, ErrorCode } from './types';
 import {
   DAILY_VERSE_KEY,
   DAILY_VERSE_TEST_KEY,
+  ERROR_MESSAGE,
+  HELP_MESSAGE,
+  LIBRARY_BASE_URL,
   SANDWICH_KEY,
   SANDWICH_TEST_KEY,
+  SET_BOOKMARK_MESSAGE,
+  START_DAILY_MESSAGE,
+  START_MESSAGE,
+  START_SANDWICH_MESSAGE,
+  STOP_DAILY_MESSAGE,
+  STOP_SANDWICH_MESSAGE,
 } from './constants';
 import {
-  keyboard,
+  mainKeyboard,
   randomBGVerseMessageText,
   randomCCVerseMessageText,
   randomSBVerseMessageText,
   randomVerseMessageText,
 } from './keyboard';
 import { getRandomVerseMessage } from './get-verse-message';
+import { VERSES_BY_BOOK } from './book-constants';
 
 const { BOT_TOKEN: token = '', ENV: env } = process.env;
 const dailyVerseKey = env === Env.Prod ? DAILY_VERSE_KEY : DAILY_VERSE_TEST_KEY;
@@ -30,55 +39,66 @@ export const bot = new Bot(token, botConfig);
 
 bot.api.config.use(autoRetry());
 
+const handleError = (error: unknown, ctx: Context) => {
+  let code = ErrorCode.Unknown;
+
+  if (error instanceof Error) {
+    code = error.message as ErrorCode;
+  }
+
+  const message = ERROR_MESSAGE[code];
+
+  ctx.reply(message, { parse_mode: 'Markdown' });
+
+  console.error(error);
+};
+
 const handleGetRandomVerse: (from?: Book) => Middleware<Context> =
   (from) => async (ctx) => {
     const message = getRandomVerseMessage(from);
 
     ctx.reply(message, {
-      reply_markup: keyboard,
+      reply_markup: mainKeyboard,
       parse_mode: 'Markdown',
     });
   };
 
+bot.hears(randomVerseMessageText, handleGetRandomVerse());
+bot.hears(randomBGVerseMessageText, handleGetRandomVerse(Book.BG));
+bot.hears(randomSBVerseMessageText, handleGetRandomVerse(Book.SB));
+bot.hears(randomCCVerseMessageText, handleGetRandomVerse(Book.CC));
+
 bot.command(Command.Start, (ctx) => {
-  ctx.reply(
-    `Привет! Чтобы получить случайный стих, нажмите на одну из кнопок`,
-    {
-      reply_markup: keyboard,
-    },
-  );
+  ctx.reply(START_MESSAGE, {
+    reply_markup: mainKeyboard,
+  });
 });
 
 bot.command(Command.Help, (ctx) => {
-  ctx.reply(
-    `Нажмите на одну из кнопок, чтобы получить случайный стих.
-  
-Если бот ведет себя странно, напишите мне - @Beloglazof`,
-    {
-      reply_markup: keyboard,
-    },
-  );
+  ctx.reply(HELP_MESSAGE, {
+    reply_markup: mainKeyboard,
+  });
 });
 
-bot.command(Command.StartDaily, (ctx) => {
+bot.command(Command.StartDaily, async (ctx) => {
   try {
-    waitUntil(kv.hset(dailyVerseKey, { [String(ctx.chatId)]: '' }));
-    ctx.reply('Я буду присылать Вам стих каждый день в 11:00 по МСК');
+    await kv.hset(dailyVerseKey, { [String(ctx.chatId)]: '' });
+    await ctx.reply(START_DAILY_MESSAGE);
   } catch (error) {
     console.error(error);
   }
 });
 
-bot.command(Command.StopDaily, (ctx) => {
+bot.command(Command.StopDaily, async (ctx) => {
   try {
-    waitUntil(kv.hdel(dailyVerseKey, String(ctx.chatId)));
-    ctx.reply('Больше никаких ежедневных стихов');
+    await kv.hdel(dailyVerseKey, String(ctx.chatId));
+    await ctx.reply(STOP_DAILY_MESSAGE);
   } catch (error) {
     console.error(error);
   }
 });
 
-bot.command(Command.StartSandwich, (ctx) => {
+bot.command(Command.StartSandwich, async (ctx) => {
   try {
     const initialData = JSON.stringify({
       [Book.SB]: 0,
@@ -86,29 +106,91 @@ bot.command(Command.StartSandwich, (ctx) => {
       [Book.CC]: 0,
     });
 
-    waitUntil(
-      kv.hset(`${sandwichKey}`, {
-        [ctx.chatId]: initialData,
-      }),
-    );
-    ctx.reply(
-      'Я буду присылать каждый день по стиху из Шримад-Бхагаватам, Чайтанья-Чаритамриты и Бхагавад-гиты. С самого первого стиха и до конца. Утром, днем и вечером.',
-    );
+    await kv.hset(sandwichKey, {
+      [ctx.chatId]: initialData,
+    });
+    await ctx.reply(START_SANDWICH_MESSAGE);
   } catch (error) {
-    console.error(error);
+    handleError(error, ctx);
   }
 });
 
-bot.command(Command.StopSandwich, (ctx) => {
+bot.command(Command.StopSandwich, async (ctx) => {
   try {
-    waitUntil(kv.hdel(sandwichKey, String(ctx.chatId)));
-    ctx.reply('Хорошо! Больше не будет ежедневного сэндвича');
+    await kv.hdel(sandwichKey, String(ctx.chatId));
+    await ctx.reply(STOP_SANDWICH_MESSAGE);
   } catch (error) {
-    console.error(error);
+    handleError(error, ctx);
   }
 });
 
-bot.hears(randomVerseMessageText, handleGetRandomVerse());
-bot.hears(randomBGVerseMessageText, handleGetRandomVerse(Book.BG));
-bot.hears(randomSBVerseMessageText, handleGetRandomVerse(Book.SB));
-bot.hears(randomCCVerseMessageText, handleGetRandomVerse(Book.CC));
+bot.callbackQuery(/bookmark/, async (ctx) => {
+  try {
+    await ctx.answerCallbackQuery();
+    await ctx.editMessageReplyMarkup({ reply_markup: undefined });
+
+    const [book, action] = ctx.callbackQuery.data.split('-');
+    ctx.reply(
+      `#${book} #${action}
+
+${SET_BOOKMARK_MESSAGE}`,
+      {
+        parse_mode: 'Markdown',
+        reply_markup: { force_reply: true },
+      },
+    );
+  } catch (error) {
+    handleError(error, ctx);
+  }
+});
+
+bot.on('::url').filter(
+  (ctx) =>
+    Boolean(
+      ctx.message?.reply_to_message?.text?.match(/^#(bg|sb|cc) #bookmark/),
+    ),
+  async (ctx) => {
+    try {
+      const sandwichData: Record<string, number> | null = await kv.hget(
+        sandwichKey,
+        String(ctx.chatId),
+      );
+
+      if (!sandwichData) {
+        throw new Error(ErrorCode.NoSandwichData);
+      }
+
+      const url = new URL(ctx.entities('url')[0].text);
+      const libraryUrl = new URL(LIBRARY_BASE_URL);
+
+      if (url.hostname !== libraryUrl.hostname) {
+        throw new Error(ErrorCode.UnsupportedLibraryHostname);
+      }
+
+      const bookmarkTarget = ctx.message?.reply_to_message?.text
+        ?.match(/^#(bg|sb|cc)/)?.[0]
+        .replace('#', '');
+
+      const [_, __, urlBook, ...versePathParts] = url.pathname
+        .split('/')
+        .filter(Boolean);
+      const book = bookmarkTarget as Book;
+
+      if (bookmarkTarget !== urlBook) {
+        throw new Error(ErrorCode.InvalidBookmarkTarget);
+      }
+
+      const versePath = versePathParts.join('.');
+      const bookmarkedVerseIndex = VERSES_BY_BOOK[book].indexOf(versePath);
+      const newSandwichData = JSON.stringify({
+        ...sandwichData,
+        [book]: bookmarkedVerseIndex + 1,
+      });
+
+      await kv.hset(sandwichKey, { [ctx.chatId]: newSandwichData });
+      await ctx.reply('Отлично! Завтра пришлю следующий стих');
+    } catch (error) {
+      handleError(error, ctx);
+    }
+  },
+);
