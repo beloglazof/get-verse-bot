@@ -37,10 +37,13 @@ export enum ErrorCode {
   InvalidBookmarkTarget = 'InvalidBookmarkTarget',
 }
 
+interface VerseLibraryLink {
+  vedabase: string;
+  gitabase: string;
+}
 export interface VerseType {
   from: Book;
-  libraryLink: string;
-  tgLink?: string;
+  libraryLink: VerseLibraryLink;
   title: string;
   translation: string;
 }

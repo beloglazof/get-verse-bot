@@ -7,6 +7,7 @@ import { DAILY_VERSE_KEY, DAILY_VERSE_TEST_KEY } from '../src/constants';
 import { Env } from '../src/types';
 import { buildDailyMessage } from '../src/build-verse-message';
 import { getVerse } from '../src/get-verse';
+import { mainKeyboard } from '../src/keyboard';
 
 const { ENV: env } = process.env;
 const dailyVerseKey = env === Env.Prod ? DAILY_VERSE_KEY : DAILY_VERSE_TEST_KEY;
@@ -33,6 +34,7 @@ export default async function handler(
       waitUntil(
         bot.api.sendMessage(Number(chatId), message, {
           parse_mode: 'Markdown',
+          reply_markup: mainKeyboard,
         }),
       );
     });
