@@ -6,17 +6,10 @@ import { ApiEnv, Book, Command, Env, ErrorCode } from './types';
 import {
   DAILY_VERSE_KEY,
   DAILY_VERSE_TEST_KEY,
-  ERROR_MESSAGE,
-  HELP_MESSAGE,
-  LIBRARY_BASE_URL,
+  VEDABASE_LIBRARY_BASE_URL,
   SANDWICH_KEY,
   SANDWICH_TEST_KEY,
-  SET_BOOKMARK_MESSAGE,
-  START_DAILY_MESSAGE,
-  START_MESSAGE,
-  START_SANDWICH_MESSAGE,
-  STOP_DAILY_MESSAGE,
-  STOP_SANDWICH_MESSAGE,
+  GITABASE_LIBRARY_BASE_URL,
 } from './constants';
 import {
   mainKeyboard,
@@ -26,7 +19,17 @@ import {
   randomVerseMessageText,
 } from './keyboard';
 import { getRandomVerseMessage } from './get-verse-message';
-import { VERSES_BY_BOOK } from './book-constants';
+import { CC_LILA_LIST, VERSES_BY_BOOK } from './book-constants';
+import {
+  ERROR_MESSAGE,
+  START_MESSAGE,
+  HELP_MESSAGE,
+  START_DAILY_MESSAGE,
+  STOP_DAILY_MESSAGE,
+  START_SANDWICH_MESSAGE,
+  STOP_SANDWICH_MESSAGE,
+  SET_BOOKMARK_MESSAGE,
+} from './messages';
 
 const { BOT_TOKEN: token = '', ENV: env } = process.env;
 const dailyVerseKey = env === Env.Prod ? DAILY_VERSE_KEY : DAILY_VERSE_TEST_KEY;
@@ -161,23 +164,36 @@ bot.on('::url').filter(
       }
 
       const url = new URL(ctx.entities('url')[0].text);
-      const libraryUrl = new URL(LIBRARY_BASE_URL);
+      const vedabaseUrl = new URL(VEDABASE_LIBRARY_BASE_URL);
+      const gitabaseUrl = new URL(GITABASE_LIBRARY_BASE_URL);
+      const isVedabase = url.hostname === vedabaseUrl.hostname;
+      const isGitabase = url.hostname === gitabaseUrl.hostname;
 
-      if (url.hostname !== libraryUrl.hostname) {
+      if (!(isGitabase || isVedabase)) {
         throw new Error(ErrorCode.UnsupportedLibraryHostname);
       }
+
+      const libraryUrl = isGitabase ? gitabaseUrl : vedabaseUrl;
 
       const bookmarkTarget = ctx.message?.reply_to_message?.text
         ?.match(/^#(bg|sb|cc)/)?.[0]
         .replace('#', '');
 
-      const [_, __, urlBook, ...versePathParts] = url.pathname
+      const [urlBook, ...versePathParts] = url.pathname
+        .replace(libraryUrl.pathname, '')
         .split('/')
         .filter(Boolean);
-      const book = bookmarkTarget as Book;
 
-      if (bookmarkTarget !== urlBook) {
+      if (bookmarkTarget !== urlBook.toLowerCase()) {
         throw new Error(ErrorCode.InvalidBookmarkTarget);
+      }
+
+      const book = bookmarkTarget! as Book;
+
+      if (book === Book.CC && isGitabase) {
+        const lilaIdx = Number(versePathParts[0]) - 1;
+        const lila = CC_LILA_LIST[lilaIdx];
+        versePathParts[0] = lila;
       }
 
       const versePath = versePathParts.join('.');
@@ -188,7 +204,9 @@ bot.on('::url').filter(
       });
 
       await kv.hset(sandwichKey, { [ctx.chatId]: newSandwichData });
-      await ctx.reply('Отлично! Завтра пришлю следующий стих');
+      await ctx.reply('Отлично! Завтра пришлю следующий стих', {
+        reply_markup: mainKeyboard,
+      });
     } catch (error) {
       handleError(error, ctx);
     }

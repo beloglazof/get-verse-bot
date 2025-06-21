@@ -11,13 +11,12 @@ import {
   BOOKS,
   SB_VERSE_TRANSLATIONS,
   CC_VERSE_TRANSLATIONS,
+  CC_LILA_LIST,
 } from './book-constants';
 import { Book, CcLila, VerseType } from './types';
 import {
-  LIBRARY_BASE_URL,
-  TG_BASE_URL,
-  TG_BG_FIRST_VERSE_ID,
-  TG_BG_NAME,
+  VEDABASE_LIBRARY_BASE_URL,
+  GITABASE_LIBRARY_BASE_URL,
 } from './constants';
 
 const random = new Random();
@@ -43,23 +42,21 @@ const getBGVerse: GetOrderedVerse = (verseInd) => {
   const [chapter, verse] = BG_VERSES[verseInd].split('.');
   const title = `${BOOK_TITLE[Book.BG]} ${chapter}.${verse}`;
 
-  const link = new URL(
+  const vedabaseLink = new URL(
     path.join(Book.BG, chapter, verse),
-    LIBRARY_BASE_URL,
+    VEDABASE_LIBRARY_BASE_URL,
+  ).toString();
+
+  const gitabaseLink = new URL(
+    path.join(Book.BG, chapter, verse),
+    GITABASE_LIBRARY_BASE_URL,
   ).toString();
 
   const translation = BG_VERSE_TRANSLATIONS[verseInd];
 
-  const tgVerseId = (verseInd + TG_BG_FIRST_VERSE_ID).toString();
-  const tgLink = new URL(
-    path.join(TG_BG_NAME, tgVerseId),
-    TG_BASE_URL,
-  ).toString();
-
   return {
     from: Book.BG,
-    libraryLink: link,
-    tgLink,
+    libraryLink: { vedabase: vedabaseLink, gitabase: gitabaseLink },
     title,
     translation,
   };
@@ -70,14 +67,19 @@ const getSBVerse: GetOrderedVerse = (verseInd) => {
   const title = `${BOOK_TITLE[Book.SB]} ${canto}.${chapter}.${verse}`;
   const translation = SB_VERSE_TRANSLATIONS[verseInd];
 
-  const link = new URL(
+  const vedabaseLink = new URL(
     path.join(Book.SB, canto, chapter, verse),
-    LIBRARY_BASE_URL,
+    VEDABASE_LIBRARY_BASE_URL,
+  ).toString();
+
+  const gitabaseLink = new URL(
+    path.join(Book.SB, canto, chapter, verse),
+    GITABASE_LIBRARY_BASE_URL,
   ).toString();
 
   return {
     from: Book.SB,
-    libraryLink: link,
+    libraryLink: { vedabase: vedabaseLink, gitabase: gitabaseLink },
     title,
     translation,
   };
@@ -86,17 +88,23 @@ const getSBVerse: GetOrderedVerse = (verseInd) => {
 const getCCVerse: GetOrderedVerse = (verseInd) => {
   const [lila, chapter, verse] = CC_VERSES[verseInd].split('.');
   const lilaTitle = CC_LILA_TITLE[lila as CcLila];
+  const lilaNum = `${CC_LILA_LIST.indexOf(lila as CcLila) + 1}`;
   const title = `${BOOK_TITLE[Book.CC]} ${lilaTitle} ${chapter}.${verse}`;
   const translation = CC_VERSE_TRANSLATIONS[verseInd];
 
-  const link = new URL(
+  const vedabaseLink = new URL(
     path.join(Book.CC, lila, chapter, verse),
-    LIBRARY_BASE_URL,
+    VEDABASE_LIBRARY_BASE_URL,
+  ).toString();
+
+  const gitabaseLink = new URL(
+    path.join(Book.CC, lilaNum, chapter, verse),
+    GITABASE_LIBRARY_BASE_URL,
   ).toString();
 
   return {
     from: Book.CC,
-    libraryLink: link,
+    libraryLink: { vedabase: vedabaseLink, gitabase: gitabaseLink },
     title,
     translation,
   };
