@@ -1,4 +1,8 @@
-import { VEDABASE_LIBRARY_BASE_URL, GITABASE_LIBRARY_BASE_URL } from '.';
+import {
+  VEDABASE_LIBRARY_BASE_URL,
+  GITABASE_LIBRARY_BASE_URL,
+  OCEAN_LIBRARY_BASE_URL,
+} from '.';
 import { Command, ErrorCode } from '../types';
 
 export const START_MESSAGE = `Привет! Чтобы получить случайный стих, нажмите на одну из кнопок`;
@@ -34,7 +38,7 @@ export const START_SANDWICH_MESSAGE =
 export const STOP_SANDWICH_MESSAGE =
   'Хорошо! Больше не будет ежедневного "сэндвича"';
 
-export const INITIAL_SET_BOOKMARK_MESSAGE = `Отправьте мне ссылку с [vedabase](${VEDABASE_LIBRARY_BASE_URL}) или с [gitabase](${GITABASE_LIBRARY_BASE_URL}) на стих на котором Вы остановились`;
+export const INITIAL_SET_BOOKMARK_MESSAGE = `Отправьте мне ссылку с [Vedabase](${VEDABASE_LIBRARY_BASE_URL}), [Gitabase](${GITABASE_LIBRARY_BASE_URL}) или [Океан](${OCEAN_LIBRARY_BASE_URL}) на стих на котором Вы остановились`;
 
 export const GET_RANDOM_VERSE_MESSAGE = 'Любой случайный стих, пожалуйста 🔮';
 export const GET_RANDOM_BG_VERSE_MESSAGE =
@@ -50,13 +54,13 @@ const NO_SANDWICH_DATA_ERROR_MESSAGE = `Вы не подписаны на "сэ�
 
 Чтобы получать по порядку стихи из Шримад-Бхагаватам, Чайтанья-Чаритамриты и Бхагавад-гиты используйте команду /${Command.StartSandwich}`;
 
-const UNSUPPORTED_LIBRARY_HOSTNAME_ERROR_MESSAGE = `Я умею работать только с ссылками на [vedabase](${VEDABASE_LIBRARY_BASE_URL}) и [gitabase](${GITABASE_LIBRARY_BASE_URL}).
+const UNSUPPORTED_LIBRARY_HOSTNAME_ERROR_MESSAGE = `Я умею работать только с ссылками из [Vedabase](${VEDABASE_LIBRARY_BASE_URL}), [Gitabase](${GITABASE_LIBRARY_BASE_URL}) или [Океан](${OCEAN_LIBRARY_BASE_URL}).
 
-Чтобы поставить закладку, отправьте ссылку на стих ответом на сообщение с хэштегом #bookmark`;
+Чтобы поставить закладку, отправьте ссылку на стих в ответе на сообщение с хэштегом #bookmark`;
 
 const INVALID_BOOKMARK_TARGET_ERROR_MESSAGE = `Вы отправили ссылку не на ту книгу.
 
-Чтобы поставить закладку, отправьте ссылку на стих ответом на сообщение с хэштегом #bookmark`;
+Чтобы поставить закладку, отправьте ссылку на стих в ответе на сообщение с хэштегом #bookmark`;
 
 export const ERROR_MESSAGE: Record<ErrorCode, string> = {
   [ErrorCode.Unknown]: DEFAULT_ERROR_MESSAGE,

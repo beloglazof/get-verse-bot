@@ -1,19 +1,30 @@
 import { kv } from '@vercel/kv';
 import { Middleware, Context } from 'grammy';
+
+import { handleError } from '../handle-error';
+import { mainKeyboard } from '../keyboard';
+
+import { ErrorCode, Book, Env } from '../types';
 import {
   VEDABASE_LIBRARY_BASE_URL,
   GITABASE_LIBRARY_BASE_URL,
   SANDWICH_KEY,
   SANDWICH_TEST_KEY,
+  OCEAN_LIBRARY_BASE_URL,
 } from '../constants';
 import { VERSES_BY_BOOK } from '../constants/book-constants';
 import { CC_LILA_LIST } from '../constants/cc-constants';
-import { mainKeyboard } from '../keyboard';
-import { ErrorCode, Book, Env } from '../types';
-import { handleError } from '../handle-error';
+
+function escapeRegExp(string: string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escapes special characters
+}
 
 const sandwichKey =
   process.env.ENV === Env.Prod ? SANDWICH_KEY : SANDWICH_TEST_KEY;
+const baseUrlRegExp = new RegExp(
+  `^(${escapeRegExp(VEDABASE_LIBRARY_BASE_URL)}|${escapeRegExp(GITABASE_LIBRARY_BASE_URL)}|${escapeRegExp(OCEAN_LIBRARY_BASE_URL)})`,
+  'gi',
+);
 
 export const setBookmark: Middleware<Context> = async (ctx) => {
   try {
@@ -27,27 +38,24 @@ export const setBookmark: Middleware<Context> = async (ctx) => {
     }
 
     const url = new URL(ctx.entities('url')[0].text);
-    const vedabaseUrl = new URL(VEDABASE_LIBRARY_BASE_URL);
     const gitabaseUrl = new URL(GITABASE_LIBRARY_BASE_URL);
-    const isVedabase = url.hostname === vedabaseUrl.hostname;
     const isGitabase = url.hostname === gitabaseUrl.hostname;
 
-    if (!(isGitabase || isVedabase)) {
+    if (!baseUrlRegExp.test(url.toString())) {
       throw new Error(ErrorCode.UnsupportedLibraryHostname);
     }
-
-    const libraryUrl = isGitabase ? gitabaseUrl : vedabaseUrl;
 
     const bookmarkTarget = ctx.message?.reply_to_message?.text
       ?.match(/^#(bg|sb|cc)/)?.[0]
       .replace('#', '');
 
-    const [urlBook, ...versePathParts] = url.pathname
-      .replace(libraryUrl.pathname, '')
+    const [urlBook, ...versePathParts] = url
+      .toString()
+      .replace(baseUrlRegExp, '')
       .split('/')
       .filter(Boolean);
 
-    if (bookmarkTarget !== urlBook.toLowerCase()) {
+    if (bookmarkTarget !== urlBook?.toLowerCase()) {
       throw new Error(ErrorCode.InvalidBookmarkTarget);
     }
 

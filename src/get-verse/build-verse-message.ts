@@ -9,7 +9,7 @@ export const buildVerseMessage = ({
   
 ${translation}`;
 
-  const links = `[Gitabase](${libraryLink.gitabase}) | [Vedabase](${libraryLink.vedabase})`;
+  const links = `[Океан](${libraryLink.ocean}) | [Gitabase](${libraryLink.gitabase}) | [Vedabase](${libraryLink.vedabase})`;
 
   message = `${message}
 

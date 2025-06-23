@@ -9,6 +9,7 @@ import {
 import {
   VEDABASE_LIBRARY_BASE_URL,
   GITABASE_LIBRARY_BASE_URL,
+  OCEAN_LIBRARY_BASE_URL,
 } from '../constants';
 import { BG_VERSES, BG_VERSE_TRANSLATIONS } from '../constants/bg-constants';
 import {
@@ -52,11 +53,20 @@ const getBGVerse: GetOrderedVerse = (verseInd) => {
     GITABASE_LIBRARY_BASE_URL,
   ).toString();
 
+  const oceanLink = new URL(
+    path.join(Book.BG, chapter, verse),
+    OCEAN_LIBRARY_BASE_URL,
+  ).toString();
+
   const translation = BG_VERSE_TRANSLATIONS[verseInd];
 
   return {
     from: Book.BG,
-    libraryLink: { vedabase: vedabaseLink, gitabase: gitabaseLink },
+    libraryLink: {
+      vedabase: vedabaseLink,
+      gitabase: gitabaseLink,
+      ocean: oceanLink,
+    },
     title,
     translation,
   };
@@ -77,9 +87,18 @@ const getSBVerse: GetOrderedVerse = (verseInd) => {
     GITABASE_LIBRARY_BASE_URL,
   ).toString();
 
+  const oceanLink = new URL(
+    path.join(Book.SB, canto, chapter, verse),
+    OCEAN_LIBRARY_BASE_URL,
+  ).toString();
+
   return {
     from: Book.SB,
-    libraryLink: { vedabase: vedabaseLink, gitabase: gitabaseLink },
+    libraryLink: {
+      vedabase: vedabaseLink,
+      gitabase: gitabaseLink,
+      ocean: oceanLink,
+    },
     title,
     translation,
   };
@@ -102,9 +121,18 @@ const getCCVerse: GetOrderedVerse = (verseInd) => {
     GITABASE_LIBRARY_BASE_URL,
   ).toString();
 
+  const oceanLink = new URL(
+    path.join(Book.CC, lila, chapter, verse),
+    OCEAN_LIBRARY_BASE_URL,
+  ).toString();
+
   return {
     from: Book.CC,
-    libraryLink: { vedabase: vedabaseLink, gitabase: gitabaseLink },
+    libraryLink: {
+      vedabase: vedabaseLink,
+      gitabase: gitabaseLink,
+      ocean: oceanLink,
+    },
     title,
     translation,
   };

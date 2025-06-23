@@ -40,6 +40,7 @@ export enum ErrorCode {
 interface VerseLibraryLink {
   vedabase: string;
   gitabase: string;
+  ocean: string;
 }
 export interface VerseType {
   from: Book;
