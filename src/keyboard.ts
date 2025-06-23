@@ -1,21 +1,20 @@
 import { InlineKeyboard, Keyboard } from 'grammy';
 import { Book } from './types';
-
-export const randomVerseMessageText = 'Любой случайный стих, пожалуйста 🔮';
-export const randomBGVerseMessageText = 'Стих из Бхагавад-гиты, пожалуйста 🪈';
-export const randomSBVerseMessageText =
-  'Стих из Шримад-Бхагаватам, пожалуйста 🦜';
-export const randomCCVerseMessageText =
-  'Стих из Шри Чайтанья-чаритамриты, пожалуйста 🌕';
+import {
+  GET_RANDOM_VERSE_MESSAGE,
+  GET_RANDOM_BG_VERSE_MESSAGE,
+  GET_RANDOM_SB_VERSE_MESSAGE,
+  GET_RANDOM_CC_VERSE_MESSAGE,
+} from './constants/messages';
 
 export const mainKeyboard = new Keyboard()
-  .text(randomVerseMessageText)
+  .text(GET_RANDOM_VERSE_MESSAGE)
   .row()
-  .text(randomBGVerseMessageText)
+  .text(GET_RANDOM_BG_VERSE_MESSAGE)
   .row()
-  .text(randomSBVerseMessageText)
+  .text(GET_RANDOM_SB_VERSE_MESSAGE)
   .row()
-  .text(randomCCVerseMessageText);
+  .text(GET_RANDOM_CC_VERSE_MESSAGE);
 
 export const getBookmarkInlineKeyboard = (book: Book) =>
   new InlineKeyboard().text('Закладка', `${book}-bookmark`);

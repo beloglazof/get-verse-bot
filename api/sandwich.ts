@@ -5,11 +5,12 @@ import { GrammyError } from 'grammy';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { bot } from '../src/bot';
-import { SANDWICH_KEY, SANDWICH_TEST_KEY } from '../src/constants';
-import { Book, Env } from '../src/types';
-import { buildVerseMessage } from '../src/build-verse-message';
-import { getVerse } from '../src/get-verse';
+import { buildVerseMessage } from '../src/get-verse/build-verse-message';
+import { getVerse } from '../src/get-verse/';
 import { getBookmarkInlineKeyboard } from '../src/keyboard';
+
+import { Book, Env } from '../src/types';
+import { SANDWICH_KEY, SANDWICH_TEST_KEY } from '../src/constants';
 
 const { ENV: env } = process.env;
 const sandwichKey = env === Env.Prod ? SANDWICH_KEY : SANDWICH_TEST_KEY;
