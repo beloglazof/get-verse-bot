@@ -3,11 +3,12 @@ import { waitUntil } from '@vercel/functions';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { bot } from '../src/bot';
-import { DAILY_VERSE_KEY, DAILY_VERSE_TEST_KEY } from '../src/constants';
-import { Env } from '../src/types';
-import { buildDailyMessage } from '../src/build-verse-message';
-import { getVerse } from '../src/get-verse';
+import { buildDailyMessage } from '../src/get-verse/build-verse-message';
+import { getVerse } from '../src/get-verse/';
 import { mainKeyboard } from '../src/keyboard';
+
+import { Env } from '../src/types';
+import { DAILY_VERSE_KEY, DAILY_VERSE_TEST_KEY } from '../src/constants';
 
 const { ENV: env } = process.env;
 const dailyVerseKey = env === Env.Prod ? DAILY_VERSE_KEY : DAILY_VERSE_TEST_KEY;
