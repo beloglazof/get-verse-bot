@@ -1,5 +1,5 @@
 import { Context } from 'grammy';
-import { ERROR_MESSAGE } from './constants/messages';
+import { ERROR_MESSAGE } from './constants/error-messages';
 import { ErrorCode } from './types';
 
 export const handleError = (error: unknown, ctx: Context) => {

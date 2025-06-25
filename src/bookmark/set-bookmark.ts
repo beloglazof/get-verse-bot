@@ -14,6 +14,7 @@ import {
 } from '../constants';
 import { VERSES_BY_BOOK } from '../constants/book-constants';
 import { CC_LILA_LIST } from '../constants/cc-constants';
+import { FINAL_SET_BOOKMARK_MESSAGE } from '../constants/messages';
 
 function escapeRegExp(string: string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escapes special characters
@@ -75,7 +76,7 @@ export const setBookmark: Middleware<Context> = async (ctx) => {
     });
 
     await kv.hset(sandwichKey, { [ctx.chatId]: newSandwichData });
-    await ctx.reply('Отлично! Завтра пришлю следующий стих', {
+    await ctx.reply(FINAL_SET_BOOKMARK_MESSAGE, {
       reply_markup: mainKeyboard,
     });
   } catch (error) {
